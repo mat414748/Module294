@@ -42,13 +42,33 @@
     margin-left: 40px;
 }
 
-#prodWin {
+.tableWindow {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     margin: auto;
     margin-top: 50px;
     padding-top: 20px;
+    padding-bottom: 20px;
     padding-left: 20px;
-    width: 40%;
-    height: 40px;
+    width: 80%;
+    border: 2px solid black;
+}
+.windowPanel {
+    text-align: center;
+    height: 50px;
+    font-size: 50px;
+}
+#productPanel {
+    margin-left: 35%; 
+}
+#categoryPanel {
+    margin-left: 31.5%; 
+}
+#createElement {
+    margin-left: 30%;
+    font-size: 20px;
+    background-color: green;
     border: 2px solid black;
     border-radius: 10px;
 }

@@ -35,6 +35,12 @@ login.onclick = function() {
     if (document.getElementById("hi")) {
     document.body.removeChild(helloWorld);
     }
+    if (document.getElementById("productTableWindow")) {
+        document.getElementById("productTableWindow").remove();
+    }
+    if (document.getElementById("categoryTableWindow")) {
+        document.getElementById("categoryTableWindow").remove();
+    }
     if (!document.getElementById("logWin")) {
         var loginWindow = document.createElement("div");
         var name = document.createElement("input");
@@ -70,6 +76,12 @@ mainPage.onclick = function() {
     if (document.getElementById("logWin")) {
         document.getElementById("logWin").remove();
     }
+    if (document.getElementById("productTableWindow")) {
+        document.getElementById("productTableWindow").remove();
+    }
+    if (document.getElementById("categoryTableWindow")) {
+        document.getElementById("categoryTableWindow").remove();
+    }
 };
 
 var productList = document.getElementById("products-list"); 
@@ -81,18 +93,27 @@ productList.onclick = function() {
     if (document.getElementById("logWin")) {
         document.getElementById("logWin").remove();
     }
-    var productWindow = document.createElement("div");
-    var productListPanel = document.createElement("div");
-    var createButton = document.createElement("button");
-    
-    productWindow.id = "prodWin";
-    productListPanel.id = "prodWinPan";
-    createButton.id = "createElement";
-    createButton.innerText = "Create";
+    if (document.getElementById("categoryTableWindow")) {
+        document.getElementById("categoryTableWindow").remove();
+    }
+    if (!document.getElementById("productTableWindow")) {
+        var productWindow = document.createElement("div");
+        var productListPanel = document.createElement("div");
+        var createProductButton = document.createElement("button");
+        
+        productWindow.className = "tableWindow";
+        productWindow.id = "productTableWindow";
+        productListPanel.className = "windowPanel";
+        productListPanel.id = "productPanel";
+        createProductButton.id = "createElement";
 
-    productListPanel.appendChild(createButton);
-    productWindow.appendChild(productListPanel);
-    document.body.appendChild(productWindow);
+        createProductButton.innerText = "Create";
+        productListPanel.innerText = "Products list";
+
+        productWindow.appendChild(productListPanel);
+        productWindow.appendChild(createProductButton);
+        document.body.appendChild(productWindow);
+    }
 };
 
 var categoriesList = document.getElementById("categories-list"); 
@@ -103,6 +124,27 @@ categoriesList.onclick = function() {
     }
     if (document.getElementById("logWin")) {
         document.getElementById("logWin").remove();
+    }
+    if (document.getElementById("productTableWindow")) {
+        document.getElementById("productTableWindow").remove();
+    }
+    if (!document.getElementById("categoryTableWindow")) {
+        var categoryWindow = document.createElement("div");
+        var categoryListPanel = document.createElement("div");
+        var createcategoryButton = document.createElement("button");
+        
+        categoryWindow.className = "tableWindow";
+        categoryWindow.id = "categoryTableWindow";
+        categoryListPanel.className = "windowPanel";
+        categoryListPanel.id = "categoryPanel";
+        createcategoryButton.id = "createElement";
+        
+        createcategoryButton.innerText = "Create";
+        categoryListPanel.innerText = "Categories list";
+
+        categoryWindow.appendChild(categoryListPanel);
+        categoryWindow.appendChild(createcategoryButton);
+        document.body.appendChild(categoryWindow);
     }
 };
 
