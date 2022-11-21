@@ -1,5 +1,5 @@
 <?php
-$database = new mysqli("localhost", "root", "", "online_shop");
+$database = new mysqli("localhost", "levantsoumatvej", "Wu?48du60", "sh119929_levantsoumatvej");
 require_once "../public/index.php";
 /**
  * A function for creating a new product and adding it to the database.

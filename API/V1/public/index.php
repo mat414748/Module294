@@ -12,7 +12,7 @@ header("Content-Type: application/json");
  * @OA\Info(title="Online shop API", version="1")
  */
 $app = AppFactory::create();
-$app->setBasePath("/API/V1");
+$app->setBasePath("/levantsou-matvej/API/V1"); 
 /**
  * Returns an error to the client with the given message and status code.
  * This will immediately return the response and end all scripts.
@@ -70,21 +70,21 @@ $app->post("/Authentication", function (Request $request, Response $response, $a
     $request_body = file_get_contents("php://input");
     $request_data = json_decode($request_body, true);
     //If the parameters are not set
-    if (!isset($request_data["username"]) || empty($request_data["username"])) {
+    if (!isset($request_data[0]["username"]) || empty($request_data[0]["username"])) {
         message("Please provide a \"username\" field.", 400);
     } 
-    if (!isset($request_data["password"]) || empty($request_data["password"])) {
+    if (!isset($request_data[1]["password"]) || empty($request_data[1]["password"])) {
         message("Please provide a \"password\" field.", 400);
     }
 
-    $username = anti_injection($request_data["username"]);
-    $password = anti_injection($request_data["password"]);
+    $username = anti_injection($request_data[0]["username"]);
+    $password = anti_injection($request_data[1]["password"]);
     //Verification of login and password for token creation
     if ($username != $api_username || $password != $api_password) {
         message("Invalid credentials", 401);
     }
 
-    $token = Token::create($username, $password, time() + 3600, "localhost");
+    $token = Token::create($username, $password, time() + 60, "campus.csbe.ch");
     setcookie("token", $token);
     message("Token created", 200);
     return $response;

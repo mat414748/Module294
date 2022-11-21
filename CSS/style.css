@@ -1,10 +1,54 @@
-.header-background {
-    background-color: blanchedalmond;
+#control-panel {
+    margin: auto;
+    margin-top: 50px;
+    display: flex;
+    background-color: gray;
+    flex-direction: row;
+    justify-content: flex-start;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    width: 80%;
 }
-table {
-    border-collapse: collapse;
-    text-align: right;
+.tab {
+    /* border: 2px solid black; */
+    text-align: center;
+    width: 25%;
 }
-td {
-    min-width: 100px;
+#hi {
+    margin: auto;
+    margin-top: 50px;
+    padding: 50px 0;
+    width: 80%;
+    background-color: whitesmoke;
+    text-align: center;
+    font-size: 50px;
+}
+
+#logWin {
+    margin: auto;
+    margin-top: 50px;
+    padding-top: 20px;
+    padding-left: 20px;
+    width: 40%;
+    height: 40px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+#logBut {
+    margin-left: 40px;
+}
+#password {
+    margin-left: 40px;
+}
+
+#prodWin {
+    margin: auto;
+    margin-top: 50px;
+    padding-top: 20px;
+    padding-left: 20px;
+    width: 40%;
+    height: 40px;
+    border: 2px solid black;
+    border-radius: 10px;
 }
