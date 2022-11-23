@@ -5,6 +5,82 @@ helloWorld.innerText = "Welcome";
 helloWorld.id = "hi";
 document.body.appendChild(helloWorld);
 
+function createProduct(sku, active, idCategory, name, image, description, price, stock) {
+    if (active.checked) {
+        var act = true;
+    } else {
+        var act = false;
+    }
+    var data = {
+        sku: sku.value,
+        active: act,
+        id_category: idCategory.value,
+        name: name.value,
+        image: image.value,
+        description: description.value,
+        price: price.value,
+        stock: stock.value
+    };
+    request = new XMLHttpRequest();
+    request.open("POST", "/levantsou-matvej/API/V1/Product");
+    request.onreadystatechange = requestCreate; 
+    request.send(JSON.stringify(data));
+}
+function createCategory(active, name) {
+    if (active.checked) {
+        var act = true;
+    } else {
+        var act = false;
+    }
+    var data = {
+        active: act,
+        name: name.value,
+    };
+    request = new XMLHttpRequest();
+    request.open("POST", "/levantsou-matvej/API/V1/Category");
+    request.onreadystatechange = requestCreate; 
+    request.send(JSON.stringify(data));
+}
+function requestCreate(event) {
+    if (request.readyState < 4) {
+        return;
+    } 
+    alert(JSON.parse(request.responseText).message);
+    if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+        document.getElementsByClassName("table-window")[0].remove();
+        getAllCategories();
+    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+        document.getElementsByClassName("table-window")[0].remove();
+        getAllProducts();
+    }
+}
+
+function deleteProduct(id) {
+    request = new XMLHttpRequest();
+    request.open("DELETE", "/levantsou-matvej/API/V1/Product/" + id);
+    request.onreadystatechange = requestDelete; 
+    request.send();
+}
+function deleteCategory(id) {
+    request = new XMLHttpRequest();
+    request.open("DELETE", "/levantsou-matvej/API/V1/Category/" + id);
+    request.onreadystatechange = requestDelete; 
+    request.send();
+}
+function requestDelete(event) { 
+    if (request.readyState < 4) {
+        return;
+    } 
+    console.log(JSON.parse(request.responseText).message);
+    if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+        document.getElementsByClassName("table-window")[0].remove();
+        getAllCategories();
+    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+        document.getElementsByClassName("table-window")[0].remove();
+        getAllProducts();
+    }
+}
+
 function getAllProducts() {
     request = new XMLHttpRequest();
     request.open("GET", "/levantsou-matvej/API/V1/Product");
@@ -27,9 +103,15 @@ function requestAnswer(event) {
         alert(JSON.parse(request.responseText).message);
     } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
         getResult = JSON.parse(request.responseText).message;
+        if (getResult == "No categories found") {
+            alert(getResult);
+        }
         createList();
     } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
         getResult = JSON.parse(request.responseText).message;
+        if (getResult == "No products found") {
+            alert(getResult);
+        }
         createList(1);
     }
 }
@@ -44,7 +126,7 @@ function authentication(event, name, password) {
         }
     ];
     request = new XMLHttpRequest();
-    request.open("POST", "https://campus.csbe.ch/levantsou-matvej/API/V1/Authentication");
+    request.open("POST", "/levantsou-matvej/API/V1/Authentication");
     request.onreadystatechange = requestAuthentication; 
     request.send(JSON.stringify(data));
 }
@@ -54,7 +136,7 @@ function requestAuthentication() {
     } 
     const answer = JSON.parse(request.responseText).message.split(";");
     if (answer[0] == "Token created") {
-        document.cookie = "token=" + answer[1] +  "; max-age=60; path=/;";
+        document.cookie = "token=" + answer[1] +  "; max-age=300; path=/;";
     }
     alert(answer[0]);  
 }
@@ -92,6 +174,13 @@ function createList(tableType = 0) {
 
     table.id = "main-table";
 
+    if (tableType == 0) {
+        var tableCell = document.createElement("td");
+        tableCell.id = "toc";
+        tableCell.innerText = "Category_id";
+        tableLine.appendChild(tableCell); 
+    }
+
     if (tableType == 1) {
         var tableCell = document.createElement("td");
         tableCell.id = "toc";
@@ -103,6 +192,13 @@ function createList(tableType = 0) {
     tableCell.id = "toc";
     tableCell.innerText = "Active";
     tableLine.appendChild(tableCell);
+
+    if (tableType == 1) {
+        var tableCell = document.createElement("td");
+        tableCell.id = "toc";
+        tableCell.innerText = "Id_category";
+        tableLine.appendChild(tableCell); 
+    }
 
     var tableCell = document.createElement("td");
     tableCell.id = "toc";
@@ -132,66 +228,94 @@ function createList(tableType = 0) {
     }
 
     var tableCell = document.createElement("td");
-    tableCell.id = "toc";
     tableLine.appendChild(tableCell);
+
     table.appendChild(tableLine);
-
-    for (var i = 0; i < getResult.length; i++) {
-        var tableObject = getResult[i];
-    
-        var tableLine = document.createElement("tr");
-
-        if (tableType == 1) {
-        var tableCell = document.createElement("td");
-        tableCell.id = "toc";
-        tableCell.innerText = tableObject.sku;
-        tableLine.appendChild(tableCell);
-        }
-
-        var tableCell = document.createElement("td");
-        tableCell.id = "toc";
-        tableCell.innerText = tableObject.active;
-        tableLine.appendChild(tableCell);
-
-        var tableCell = document.createElement("td");
-        tableCell.id = "toc";
-        tableCell.innerText = tableObject.name;
-        tableLine.appendChild(tableCell);
-
-        if (tableType == 1) {
-            var tableCell = document.createElement("td");
-            tableCell.id = "toc";
-            tableCell.innerText = tableObject.image;
-            tableLine.appendChild(tableCell);
-
-            var tableCell = document.createElement("td");
-            tableCell.id = "toc";
-            tableCell.innerText = tableObject.description;
-            tableLine.appendChild(tableCell);
-
-            var tableCell = document.createElement("td");
-            tableCell.id = "toc";
-            tableCell.innerText = tableObject.price;
-            tableLine.appendChild(tableCell);
-
-            var tableCell = document.createElement("td");
-            tableCell.id = "toc";
-            tableCell.innerText = tableObject.stock;
-            tableLine.appendChild(tableCell);
-        }
+    if (Array.isArray(getResult)) {
+        for (let i = 0; i < getResult.length; i++) {
+            var tableObject = getResult[i];
         
-        var tableCell = document.createElement("td");
-        var update = document.createElement("button");
-        var drop = document.createElement("button");
+            var tableLine = document.createElement("tr");
 
-        tableCell.id = "toc";
-        
-        tableCell.appendChild(drop);
-        tableCell.appendChild(update);
-        tableLine.appendChild(tableCell);
+            if (tableType == 0) {
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.category_id;
+                tableLine.appendChild(tableCell); 
+            }
+
+            if (tableType == 1) {
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.sku;
+                tableLine.appendChild(tableCell);
+            }
+
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.active;
+            tableLine.appendChild(tableCell);
+
+            if (tableType == 1) {
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.id_category;
+                tableLine.appendChild(tableCell);
+            }
+
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.name;
+            tableLine.appendChild(tableCell);
+
+            if (tableType == 1) {
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.image;
+                tableLine.appendChild(tableCell);
+
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.description;
+                tableLine.appendChild(tableCell);
+
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.price;
+                tableLine.appendChild(tableCell);
+
+                var tableCell = document.createElement("td");
+                tableCell.id = "toc";
+                tableCell.innerText = tableObject.stock;
+                tableLine.appendChild(tableCell);
+            }
+            
+            var tableCell = document.createElement("td");
+            var update = document.createElement("button");
+            var drop = document.createElement("button");
+
+            update.innerText = "UPD";
+            drop.innerText = "X";
+
+            update.className = "upd";
+            drop.className = "drop";
+            
+            drop.style.cursor = 'pointer';
+            drop.addEventListener("click", function() {   
+                if (tableType == 1) {
+                    deleteProduct(tableObject.product_id);
+                } else if (tableType == 0) {
+                    deleteCategory(tableObject.category_id);
+                }
+            });
+            
+            tableCell.appendChild(drop);
+            tableCell.appendChild(update);
+            tableLine.appendChild(tableCell);
 
 
-        table.appendChild(tableLine);
+            table.appendChild(tableLine);
+        }   
     }
 
     mainWindow.appendChild(table);
@@ -199,7 +323,7 @@ function createList(tableType = 0) {
 
     createButton.style.cursor = 'pointer';
     createButton.addEventListener("click", function() {
-        createElement(tableType)
+        createElement(tableType);
     });
 }
 
@@ -212,15 +336,18 @@ function createElement(tableType) {
     mainWindow.className = "table-window";
     
     if (tableType == 1) {
-        createLine("SKU:", table);
+        var sku = createLine("SKU:", table);
     }
-    createLine("Active:", table, 1);
-    createLine("Name:", table);
+    var active = createLine("Active:", table, 1);
     if (tableType == 1) {
-        createLine("Image:", table);
-        createLine("Description:", table);
-        createLine("Price:", table, 2);
-        createLine("Stock:", table, 3);
+        var id = createLine("Id_category:", table, 3);
+    }
+    var name = createLine("Name:", table);
+    if (tableType == 1) {
+        var image = createLine("Image:", table);
+        var desc = createLine("Description:", table);
+        var price = createLine("Price:", table, 2);
+        var stock = createLine("Stock:", table, 3);
     } 
 
     mainWindow.appendChild(table);
@@ -245,6 +372,13 @@ function createElement(tableType) {
             document.getElementsByClassName("table-window")[0].remove();
         }
         createList(tableType);
+    });
+    create.addEventListener("click", function() {
+        if (tableType == 1) {
+            createProduct(sku, active, id, name, image, desc, price, stock);
+        } else {
+            createCategory(active, name);
+        }
     });
 }
 
@@ -275,9 +409,8 @@ function createLine(text, table, type = 0) {
     tableCell.appendChild(inputField);
     tableLine.appendChild(tableCell);
     table.appendChild(tableLine);
+    return inputField;
 }
-
-
 
 var login = document.getElementById("login");
 login.style.cursor = 'pointer';
