@@ -1,8 +1,38 @@
 var request;
+var getResult = 0;
 var helloWorld = document.createElement("div");
 helloWorld.innerText = "Welcome";
 helloWorld.id = "hi";
 document.body.appendChild(helloWorld);
+
+function getAllProducts() {
+    request = new XMLHttpRequest();
+    request.open("GET", "/levantsou-matvej/API/V1/Product");
+    request.onreadystatechange = requestAnswer; 
+    request.send();
+}
+
+function getAllCategories() {
+    request = new XMLHttpRequest();
+    request.open("GET", "/levantsou-matvej/API/V1/Category");
+    request.onreadystatechange = requestAnswer; 
+    request.send();
+}
+
+function requestAnswer(event) { 
+    if (request.readyState < 4) {
+        return;
+    } 
+    if (JSON.parse(request.responseText).message == "Unauthorised") {
+        alert(JSON.parse(request.responseText).message);
+    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+        getResult = JSON.parse(request.responseText).message;
+        createList();
+    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+        getResult = JSON.parse(request.responseText).message;
+        createList(1);
+    }
+}
 
 function authentication(event, name, password) {
     var data = [
@@ -15,23 +45,18 @@ function authentication(event, name, password) {
     ];
     request = new XMLHttpRequest();
     request.open("POST", "https://campus.csbe.ch/levantsou-matvej/API/V1/Authentication");
-    request.onreadystatechange = requestAnswer; 
+    request.onreadystatechange = requestAuthentication; 
     request.send(JSON.stringify(data));
 }
-
-function requestAnswer(event) { 
+function requestAuthentication() { 
     if (request.readyState < 4) {
         return;
+    } 
+    const answer = JSON.parse(request.responseText).message.split(";");
+    if (answer[0] == "Token created") {
+        document.cookie = "token=" + answer[1] +  "; max-age=60; path=/;";
     }
-    // console.log(JSON.parse(request.responseText).message); //Response body
-    // console.log(request.status); // Status Code
-    // console.log(request.statusText); // Status defenition 
-    alert(JSON.parse(request.responseText).message);
-    if (JSON.parse(request.responseText).message == "Token created") {
-        document.getElementById("login").innerText = "Logout";
-        document.getElementById("log-win").remove();
-        document.body.appendChild(helloWorld);
-    }
+    alert(answer[0]);  
 }
 
 function createList(tableType = 0) {
@@ -109,12 +134,70 @@ function createList(tableType = 0) {
     var tableCell = document.createElement("td");
     tableCell.id = "toc";
     tableLine.appendChild(tableCell);
-
     table.appendChild(tableLine);
+
+    for (var i = 0; i < getResult.length; i++) {
+        var tableObject = getResult[i];
+    
+        var tableLine = document.createElement("tr");
+
+        if (tableType == 1) {
+        var tableCell = document.createElement("td");
+        tableCell.id = "toc";
+        tableCell.innerText = tableObject.sku;
+        tableLine.appendChild(tableCell);
+        }
+
+        var tableCell = document.createElement("td");
+        tableCell.id = "toc";
+        tableCell.innerText = tableObject.active;
+        tableLine.appendChild(tableCell);
+
+        var tableCell = document.createElement("td");
+        tableCell.id = "toc";
+        tableCell.innerText = tableObject.name;
+        tableLine.appendChild(tableCell);
+
+        if (tableType == 1) {
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.image;
+            tableLine.appendChild(tableCell);
+
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.description;
+            tableLine.appendChild(tableCell);
+
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.price;
+            tableLine.appendChild(tableCell);
+
+            var tableCell = document.createElement("td");
+            tableCell.id = "toc";
+            tableCell.innerText = tableObject.stock;
+            tableLine.appendChild(tableCell);
+        }
+        
+        var tableCell = document.createElement("td");
+        var update = document.createElement("button");
+        var drop = document.createElement("button");
+
+        tableCell.id = "toc";
+        
+        tableCell.appendChild(drop);
+        tableCell.appendChild(update);
+        tableLine.appendChild(tableCell);
+
+
+        table.appendChild(tableLine);
+    }
+
     mainWindow.appendChild(table);
     document.body.appendChild(mainWindow);
-    createButton.style.cursor = 'pointer';
 
+    createButton.style.cursor = 'pointer';
     createButton.addEventListener("click", function() {
         createElement(tableType)
     });
@@ -257,7 +340,8 @@ productList.onclick = function() {
         document.getElementsByClassName("table-window")[0].remove();
     }
     if (!document.getElementsByClassName("table-window")[0]) {
-        createList(1);
+        getAllProducts();
+        
     }
 };
 
@@ -274,7 +358,7 @@ categoriesList.onclick = function() {
         document.getElementsByClassName("table-window")[0].remove();
     }
     if (!document.getElementsByClassName("table-window")[0]) {
-        createList();
+        getAllCategories();
     }
 };
 

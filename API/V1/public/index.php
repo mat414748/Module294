@@ -84,9 +84,9 @@ $app->post("/Authentication", function (Request $request, Response $response, $a
         message("Invalid credentials", 401);
     }
 
-    $token = Token::create($username, $password, time() + 60, "localhost");
+    $token = Token::create($username, $password, time() + 60, "campus.csbe.ch");
     setcookie("token", $token);
-    message("Token created", 200);
+    message("Token created;" . $token, 200);
     return $response;
 });
 
