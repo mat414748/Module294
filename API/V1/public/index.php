@@ -6,7 +6,7 @@ use ReallySimpleJWT\Token;
 require __DIR__ . "/../vendor/autoload.php";
 require_once "model/db_functions.php";
 require "config/config.php";
-require "config/anti_sql_injection.php";
+require "controller/anti_sql_injection.php";
 header("Content-Type: application/json");
 /**
  * @OA\Info(title="Online shop API", version="1")

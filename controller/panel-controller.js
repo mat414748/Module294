@@ -108,7 +108,7 @@ function requestDelete(event) {
     if (request.readyState < 4) {
         return;
     } 
-    console.log(JSON.parse(request.responseText).message);
+    alert(JSON.parse(request.responseText).message);
     if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
         document.getElementsByClassName("table-window")[0].remove();
         getAllCategories();
@@ -136,6 +136,7 @@ function requestAnswer(event) {
     } 
     if (JSON.parse(request.responseText).message == "Unauthorised") {
         alert(JSON.parse(request.responseText).message);
+        document.body.appendChild(helloWorld);
     } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
         getResult = JSON.parse(request.responseText).message;
         if (getResult == "No categories found") {
@@ -182,7 +183,7 @@ function requestOne(event, id) {
     }
 }
 //AUTHENTICATION
-function authentication(event, name, password) {
+function authentication(name, password) {
     var data = [
         {
             username: name.value
@@ -203,6 +204,11 @@ function requestAuthentication() {
     const answer = JSON.parse(request.responseText).message.split(";");
     if (answer[0] == "Token created") {
         document.cookie = "token=" + answer[1] +  "; max-age=300; path=/;";
+        if (document.getElementById("log-win")) {
+            document.getElementById("log-win").remove();
+        }
+        document.body.appendChild(helloWorld);
+        logoutOut();
     }
     alert(answer[0]);  
 }
@@ -502,10 +508,8 @@ function createOrUpdateTableElement(tableType, action = 0, elementId = 0) {
     } else {
         update.addEventListener("click", function() {
             if (tableType == 1) {
-                console.log(elementId);
                 updateProduct(elementId, sku, active, id, name, image, desc, price, stock);
             } else {
-                console.log(elementId);
                 updateCategory(elementId, active, name);
             }
         });
@@ -542,12 +546,10 @@ function createLine(text, table, type = 0) {
     return inputField;
 }
 
-//Login 
-var login = document.getElementById("login");
-login.style.cursor = 'pointer';
-login.onclick = function() {
+//Login function
+function loginIn() {
     if (document.getElementById("hi")) {
-    document.body.removeChild(helloWorld);
+        document.body.removeChild(helloWorld);
     }
     if (document.getElementsByClassName("table-window")[0]) {
         document.getElementsByClassName("table-window")[0].remove();
@@ -571,11 +573,35 @@ login.onclick = function() {
         loginWindow.appendChild(password);
         loginWindow.appendChild(loginButton);
         document.body.appendChild(loginWindow);  
-        loginButton.addEventListener("click", function(event, name = document.getElementById("name"), password = document.getElementById("password")) {
-            authentication(event, name, password)
+        loginButton.addEventListener("click", function() {
+            authentication(name, password)
         });
     }
-};
+}
+//Logout function
+function logoutOut() {
+    login.innerText = "Logout";
+    login.onclick = function() {
+        alert("Successfully logout");
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        login.innerText = "Login";
+        login.onclick = function() {
+            loginIn();
+        };
+    }
+} 
+
+//Login 
+var login = document.getElementById("login");
+login.style.cursor = 'pointer';
+if (document.cookie.indexOf('token=')){
+    login.onclick = function() {
+        loginIn();
+    };
+} else {
+    logoutOut();
+}
+
 
 //Main page
 var mainPage = document.getElementById("main-page"); 
