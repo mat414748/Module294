@@ -4,7 +4,44 @@ var helloWorld = document.createElement("div");
 helloWorld.innerText = "Welcome";
 helloWorld.id = "hi";
 document.body.appendChild(helloWorld);
-
+//PUT
+function updateProduct(id, sku, active, idCategory, name, image, description, price, stock) {
+    if (active.checked) {
+        var act = true;
+    } else {
+        var act = false;
+    }
+    var data = {
+        sku: sku.value,
+        active: act,
+        id_category: idCategory.value,
+        name: name.value,
+        image: image.value,
+        description: description.value,
+        price: price.value,
+        stock: stock.value
+    };
+    request = new XMLHttpRequest();
+    request.open("PUT", "/levantsou-matvej/API/V1/Product/" + id);
+    request.onreadystatechange = requestCreateAndUpdate; 
+    request.send(JSON.stringify(data));
+}
+function updateCategory(id, active, name) {
+    if (active.checked) {
+        var act = true;
+    } else {
+        var act = false;
+    }
+    var data = {
+        active: act,
+        name: name.value
+    };
+    request = new XMLHttpRequest();
+    request.open("PUT", "/levantsou-matvej/API/V1/Category/" + id);
+    request.onreadystatechange = requestCreateAndUpdate; 
+    request.send(JSON.stringify(data));
+}
+//POST
 function createProduct(sku, active, idCategory, name, image, description, price, stock) {
     if (active.checked) {
         var act = true;
@@ -23,7 +60,7 @@ function createProduct(sku, active, idCategory, name, image, description, price,
     };
     request = new XMLHttpRequest();
     request.open("POST", "/levantsou-matvej/API/V1/Product");
-    request.onreadystatechange = requestCreate; 
+    request.onreadystatechange =requestCreateAndUpdate; 
     request.send(JSON.stringify(data));
 }
 function createCategory(active, name) {
@@ -38,10 +75,10 @@ function createCategory(active, name) {
     };
     request = new XMLHttpRequest();
     request.open("POST", "/levantsou-matvej/API/V1/Category");
-    request.onreadystatechange = requestCreate; 
+    request.onreadystatechange = requestCreateAndUpdate; 
     request.send(JSON.stringify(data));
 }
-function requestCreate(event) {
+function requestCreateAndUpdate(event) {
     if (request.readyState < 4) {
         return;
     } 
@@ -54,7 +91,7 @@ function requestCreate(event) {
         getAllProducts();
     }
 }
-
+//DELETE
 function deleteProduct(id) {
     request = new XMLHttpRequest();
     request.open("DELETE", "/levantsou-matvej/API/V1/Product/" + id);
@@ -80,21 +117,19 @@ function requestDelete(event) {
         getAllProducts();
     }
 }
-
+//GET ALL
 function getAllProducts() {
     request = new XMLHttpRequest();
     request.open("GET", "/levantsou-matvej/API/V1/Product");
     request.onreadystatechange = requestAnswer; 
     request.send();
 }
-
 function getAllCategories() {
     request = new XMLHttpRequest();
     request.open("GET", "/levantsou-matvej/API/V1/Category");
     request.onreadystatechange = requestAnswer; 
     request.send();
 }
-
 function requestAnswer(event) { 
     if (request.readyState < 4) {
         return;
@@ -115,7 +150,38 @@ function requestAnswer(event) {
         createList(1);
     }
 }
-
+//GET ONE
+function getProduct(id) {
+    request = new XMLHttpRequest();
+    request.open("GET", "/levantsou-matvej/API/V1/Product/" + id);
+    request.onreadystatechange = function(){requestOne(event, id)}; 
+    request.send();
+}
+function getCategory(id) {
+    request = new XMLHttpRequest();
+    request.open("GET", "/levantsou-matvej/API/V1/Category/" + id);
+    request.onreadystatechange = function(){requestOne(event, id)}; 
+    request.send();
+}
+function requestOne(event, id) {
+    if (request.readyState < 4) {
+        return;
+    } 
+    if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+        getResult = JSON.parse(request.responseText).message;
+        createOrUpdateTableElement(0, 1, id);
+        if (getResult == "No category found") {
+            alert(getResult);
+        }
+    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+        getResult = JSON.parse(request.responseText).message;
+        createOrUpdateTableElement(1, 1, id);
+        if (getResult == "No product found") {
+            alert(getResult);
+        }
+    }
+}
+//AUTHENTICATION
 function authentication(event, name, password) {
     var data = [
         {
@@ -140,7 +206,7 @@ function requestAuthentication() {
     }
     alert(answer[0]);  
 }
-
+//Create table to view
 function createList(tableType = 0) {
     var mainWindow = document.createElement("div");
     var namePanel = document.createElement("div");
@@ -291,24 +357,46 @@ function createList(tableType = 0) {
             }
             
             var tableCell = document.createElement("td");
-            var update = document.createElement("button");
-            var drop = document.createElement("button");
+            let update = document.createElement("button");
+            let drop = document.createElement("button");
 
             update.innerText = "UPD";
             drop.innerText = "X";
 
+            tableCell.id = "interactive-panel"
             update.className = "upd";
             drop.className = "drop";
-            
+
+            if (tableType == 1) {
+                drop.setAttribute("target-id", tableObject.product_id);
+            } else if (tableType == 0) {
+                drop.setAttribute("target-id", tableObject.category_id);
+            }
+
             drop.style.cursor = 'pointer';
-            drop.addEventListener("click", function() {   
+            drop.addEventListener("click", function(event) {   
                 if (tableType == 1) {
-                    deleteProduct(tableObject.product_id);
+                    deleteProduct(event.currentTarget.getAttribute("target-id"));
                 } else if (tableType == 0) {
-                    deleteCategory(tableObject.category_id);
+                    deleteCategory(event.currentTarget.getAttribute("target-id"));
                 }
             });
-            
+
+            if (tableType == 1) {
+                update.setAttribute("target-id", tableObject.product_id);
+            } else if (tableType == 0) {
+                update.setAttribute("target-id", tableObject.category_id);
+            }
+
+            update.style.cursor = 'pointer';
+            update.addEventListener("click", function(event) {
+                if (tableType == 1) {
+                    getProduct(event.currentTarget.getAttribute("target-id"));
+                } else if (tableType == 0) {
+                    getCategory(event.currentTarget.getAttribute("target-id"));
+                }
+            });
+
             tableCell.appendChild(drop);
             tableCell.appendChild(update);
             tableLine.appendChild(tableCell);
@@ -323,11 +411,11 @@ function createList(tableType = 0) {
 
     createButton.style.cursor = 'pointer';
     createButton.addEventListener("click", function() {
-        createElement(tableType);
+        createOrUpdateTableElement(tableType);
     });
 }
-
-function createElement(tableType) {
+//Create/Update menu
+function createOrUpdateTableElement(tableType, action = 0, elementId = 0) {
     if (document.getElementsByClassName("table-window")[0]) {
         document.getElementsByClassName("table-window")[0].remove();
     }
@@ -351,19 +439,44 @@ function createElement(tableType) {
     } 
 
     mainWindow.appendChild(table);
-    var create = document.createElement("button");
+
+    if (action == 0) {
+        var create = document.createElement("button");
+        create.className = "create-element";
+        create.innerText = "Create";
+        create.style.cursor = 'pointer';
+        mainWindow.appendChild(create);  
+    } else {
+        var update = document.createElement("button");
+        update.id = "update-element";
+        update.innerText = "Update";
+        update.style.cursor = 'pointer';
+        mainWindow.appendChild(update); 
+
+        if (tableType == 1) {
+            sku.value = getResult.sku;
+            if (getResult.active == "0") {
+                active.checked = false;
+            } else {
+                active.checked = true;
+            }
+            id.value = getResult.id_category;
+            name.value = getResult.name;
+            image.value = getResult.image;
+            desc.value = getResult.description;
+            price.value = getResult.price;
+            stock.value = getResult.stock;
+        } else {
+            active.value = getResult.active;
+            name.value = getResult.name;
+        }
+    }
+
     var cancel = document.createElement("button");
-
-    create.className = "create-element";
     cancel.id = "cancel-create";
-
-    create.innerText = "Create";
     cancel.innerText = "Cancel";
-
-    create.style.cursor = 'pointer';
     cancel.style.cursor = 'pointer';
 
-    mainWindow.appendChild(create);
     mainWindow.appendChild(cancel);    
     document.body.appendChild(mainWindow);
 
@@ -371,17 +484,34 @@ function createElement(tableType) {
         if (document.getElementsByClassName("table-window")[0]) {
             document.getElementsByClassName("table-window")[0].remove();
         }
-        createList(tableType);
-    });
-    create.addEventListener("click", function() {
         if (tableType == 1) {
-            createProduct(sku, active, id, name, image, desc, price, stock);
+            getAllProducts();
         } else {
-            createCategory(active, name);
+            getAllCategories();
         }
     });
-}
 
+    if (action == 0) {
+        create.addEventListener("click", function() {
+            if (tableType == 1) {
+                createProduct(sku, active, id, name, image, desc, price, stock);
+            } else {
+                createCategory(active, name);
+            }
+        });
+    } else {
+        update.addEventListener("click", function() {
+            if (tableType == 1) {
+                console.log(elementId);
+                updateProduct(elementId, sku, active, id, name, image, desc, price, stock);
+            } else {
+                console.log(elementId);
+                updateCategory(elementId, active, name);
+            }
+        });
+    }
+}
+//Create/Update field
 function createLine(text, table, type = 0) {
     var tableLine = document.createElement("tr");
     var tableCell = document.createElement("td");
@@ -412,6 +542,7 @@ function createLine(text, table, type = 0) {
     return inputField;
 }
 
+//Login 
 var login = document.getElementById("login");
 login.style.cursor = 'pointer';
 login.onclick = function() {
@@ -446,6 +577,7 @@ login.onclick = function() {
     }
 };
 
+//Main page
 var mainPage = document.getElementById("main-page"); 
 mainPage.style.cursor = 'pointer';
 mainPage.onclick = function() {
@@ -460,6 +592,7 @@ mainPage.onclick = function() {
     }
 };
 
+//Products list
 var productList = document.getElementById("products-list"); 
 productList.style.cursor = 'pointer';
 productList.onclick = function() {
@@ -478,6 +611,7 @@ productList.onclick = function() {
     }
 };
 
+//Categories list
 var categoriesList = document.getElementById("categories-list"); 
 categoriesList.style.cursor = 'pointer';
 categoriesList.onclick = function() {

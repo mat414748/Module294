@@ -32,12 +32,12 @@ function message($message, $code) {
  * @param request_data Received values
  */
 function put_check($name, $object, $request_data) {
-    if (isset($request_data[$name]) && isset($object[$name]) && !empty(anti_injection($request_data[$name]))) {
+    if (isset($request_data[$name]) && isset($object[$name])) {
         $value = anti_injection($request_data[$name]);
         $object[$name] = $value;
         return $object;
     } else if (isset($request_data[$name]) && empty(anti_injection($request_data[$name]))) {
-        message("The " . $name . " field must not be empty.", 400);
+        message("The " . $name . " field must not be empty. ", 400);
     } else {
         return $object;
     }

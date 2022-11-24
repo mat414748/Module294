@@ -88,6 +88,13 @@
     border: 2px solid black;
     border-radius: 10px;
 }
+#update-element{
+    margin-top: 10px;
+    font-size: 20px;
+    background-color: rgb(246,190,0);
+    border: 2px solid black;
+    border-radius: 10px;
+}
 
 #main-table {
     margin-left: 20px;
@@ -103,12 +110,16 @@ td {
     font-weight: bold;
     border: 1px solid black;   
 }
-
+#interactive-panel {
+    width: 150px;
+}
 .upd {
-    font-size: 28px;
+    margin-left: 10px;
+    font-size: 30px;
     background-color: rgb(246,190,0);
 }
 .drop {
-    font-size: 28px;
+    margin-left: 10px;
+    font-size: 30px;
     background-color: red;
 }
