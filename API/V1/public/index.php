@@ -310,8 +310,7 @@ $app->put("/Product/{id}", function (Request $request, Response $response, $args
     try {
         update_product($id, $product["sku"], $product["active"], $product["id_category"], $product["name"], $product["image"], $product["description"], $product["price"], $product["stock"]);
     } catch (Exception $pizdec) {
-        echo $product["id_category"];
-        //message($pizdec->getMessage(), 500);
+        message($pizdec->getMessage(), 500);
     }
     return $response;
 });
