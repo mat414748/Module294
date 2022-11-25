@@ -4,6 +4,10 @@ var helloWorld = document.createElement("div");
 helloWorld.innerText = "Welcome";
 helloWorld.id = "hi";
 document.body.appendChild(helloWorld);
+
+//Permalinks
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
 //PUT
 function updateProduct(id, sku, active, idCategory, name, image, description, price, stock) {
     if (active.checked) {
@@ -152,33 +156,43 @@ function requestAnswer(event) {
     }
 }
 //GET ONE
-function getProduct(id) {
+function getProduct(id, forPermalink = 0) {
     request = new XMLHttpRequest();
     request.open("GET", "/levantsou-matvej/API/V1/Product/" + id);
-    request.onreadystatechange = function(){requestOne(event, id)}; 
+    request.onreadystatechange = function(){requestOne(event, id, forPermalink)}; 
     request.send();
 }
-function getCategory(id) {
+function getCategory(id, forPermalink = 0) {
     request = new XMLHttpRequest();
     request.open("GET", "/levantsou-matvej/API/V1/Category/" + id);
-    request.onreadystatechange = function(){requestOne(event, id)}; 
+    request.onreadystatechange = function(){requestOne(event, id, forPermalink)}; 
     request.send();
 }
-function requestOne(event, id) {
+function requestOne(event, id, forPermalink) {
     if (request.readyState < 4) {
         return;
     } 
     if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
-        getResult = JSON.parse(request.responseText).message;
-        createOrUpdateTableElement(0, 1, id);
-        if (getResult == "No category found") {
-            alert(getResult);
-        }
+        if (forPermalink == 0) {
+            getResult = JSON.parse(request.responseText).message;
+            createOrUpdateTableElement(0, 1, id);
+            if (getResult == "No category found") {
+                alert(getResult);
+            }
+        } else {
+            getResult = JSON.parse(request.responseText).message;
+            createList();
+        }      
     } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
-        getResult = JSON.parse(request.responseText).message;
-        createOrUpdateTableElement(1, 1, id);
-        if (getResult == "No product found") {
-            alert(getResult);
+        if (forPermalink == 0) {
+            getResult = JSON.parse(request.responseText).message;
+            createOrUpdateTableElement(1, 1, id);
+            if (getResult == "No product found") {
+                alert(getResult);
+            }
+        } else {
+            getResult = JSON.parse(request.responseText).message;
+            createList(1);
         }
     }
 }
@@ -203,7 +217,6 @@ function requestAuthentication() {
     } 
     const answer = JSON.parse(request.responseText).message.split(";");
     if (answer[0] == "Token created") {
-        document.cookie = "token=" + answer[1] +  "; max-age=300; path=/;";
         if (document.getElementById("log-win")) {
             document.getElementById("log-win").remove();
         }
@@ -303,10 +316,19 @@ function createList(tableType = 0) {
     tableLine.appendChild(tableCell);
 
     table.appendChild(tableLine);
-    if (Array.isArray(getResult)) {
-        for (let i = 0; i < getResult.length; i++) {
-            var tableObject = getResult[i];
-        
+    if (Array.isArray(getResult) || typeof getResult === 'object') {
+        if (Array.isArray(getResult)) {
+            var length = getResult.length;
+        } else {
+            var length = 1;
+        }
+        for (let i = 0; i < length; i++) {
+            if (Array.isArray(getResult)) {
+                var tableObject = getResult[i];
+            } else {
+                var tableObject = getResult;
+            }
+            
             var tableLine = document.createElement("tr");
 
             if (tableType == 0) {
@@ -582,9 +604,9 @@ function loginIn() {
 function logoutOut() {
     login.innerText = "Logout";
     login.onclick = function() {
-        alert("Successfully logout");
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         login.innerText = "Login";
+        alert("Successfully logout");
         login.onclick = function() {
             loginIn();
         };
@@ -621,6 +643,12 @@ mainPage.onclick = function() {
 //Products list
 var productList = document.getElementById("products-list"); 
 productList.style.cursor = 'pointer';
+if (urlParams.get('prodId')) {
+    if (document.getElementById("hi")) {
+        document.body.removeChild(helloWorld);
+    }
+    getProduct(urlParams.get('prodId'), 1);
+}
 productList.onclick = function() {
     if (document.getElementById("hi")) {
         document.body.removeChild(helloWorld);
@@ -631,15 +659,20 @@ productList.onclick = function() {
     if (document.getElementsByClassName("table-window")[0]) {
         document.getElementsByClassName("table-window")[0].remove();
     }
-    if (!document.getElementsByClassName("table-window")[0]) {
-        getAllProducts();
-        
+    if (!document.getElementsByClassName("table-window")[0]) {  
+        getAllProducts();  
     }
 };
 
 //Categories list
 var categoriesList = document.getElementById("categories-list"); 
 categoriesList.style.cursor = 'pointer';
+if (urlParams.get('catId')) {
+    if (document.getElementById("hi")) {
+        document.body.removeChild(helloWorld);
+    }
+    getCategory(urlParams.get('catId'), 1);
+}
 categoriesList.onclick = function() {
     if (document.getElementById("hi")) {
         document.body.removeChild(helloWorld);

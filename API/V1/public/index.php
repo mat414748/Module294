@@ -84,12 +84,11 @@ $app->post("/Authentication", function (Request $request, Response $response, $a
         message("Invalid credentials", 401);
     }
 
-    $token = Token::create($username, $password, time() + 300, "campus.csbe.ch");
-    setcookie("token", $token);
+    $token = Token::create($username, $password, time() + 3600, "campus.csbe.ch");
+    setcookie("token", $token, time() + 3600, "/");
     message("Token created;" . $token, 200);
     return $response;
 });
-
 //Products
 /**
  *  @OA\Post(
