@@ -14,7 +14,11 @@ require_once "../public/index.php";
  */
 function create_product($sku, $active, $id_category, $name, $image, $description, $price, $stock) {
    global $database;
-   $result = $database->query("INSERT INTO product VALUES ('','$sku','$active','$id_category','$name','$image','$description','$price','$stock')");
+   if ($id_category == "NULL") {
+      $result = $database->query("INSERT INTO product VALUES ('','$sku','$active', NULL,'$name','$image','$description','$price','$stock')");
+   } else {
+      $result = $database->query("INSERT INTO product VALUES ('','$sku','$active','$id_category','$name','$image','$description','$price','$stock')");
+   }
    if (!$result){
       message("Error creating a new product",500);
    } else {
@@ -85,7 +89,11 @@ function get_product($id) {
  */
 function update_product($id, $sku, $active, $id_category, $name, $image, $description, $price, $stock) {
    global $database;
-   $result = $database->query("UPDATE product SET sku = '$sku', active = '$active', id_category = '$id_category', name = '$name', image = '$image', description = '$description', price = '$price', stock = '$stock' WHERE product_id = $id");
+   if ($id_category == "NULL") {
+      $result = $database->query("UPDATE product SET sku = '$sku', active = '$active', id_category = NULL, name = '$name', image = '$image', description = '$description', price = '$price', stock = '$stock' WHERE product_id = $id");
+   } else {
+      $result = $database->query("UPDATE product SET sku = '$sku', active = '$active', id_category = '$id_category', name = '$name', image = '$image', description = '$description', price = '$price', stock = '$stock' WHERE product_id = $id");
+   }
    if (!$result){
       message("Update error", 500);  
    } else if ($result === true && $database->affected_rows == 0){

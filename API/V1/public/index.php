@@ -131,9 +131,13 @@ $app->post("/Product", function (Request $request, Response $response, $args) {
     if (!isset($request_data["active"]) || !is_bool($request_data["active"])) { 
         message("Please provide an true or false for the \"active\" field.", 400);
     }
-    if (!isset($request_data["id_category"]) || !is_numeric($request_data["id_category"])) {
+    
+    if ($request_data["id_category"] == "NULL") {
+
+    } else if (!isset($request_data["id_category"]) || !is_numeric($request_data["id_category"])) {
         message("Please provide an integer number for the \"id_category\" field.", 400);
     }
+
     if (!isset($request_data["name"]) || empty($request_data["name"])) {
         message("Please provide a \"name\" field.", 400);
     }
@@ -289,7 +293,14 @@ $app->put("/Product/{id}", function (Request $request, Response $response, $args
 
     $product = put_check("sku", $product, $request_data);
     $product = put_check("active", $product, $request_data);
-    $product = put_check("id_category", $product, $request_data);
+    if ($product["id_category"] == NULL) {
+        $value = anti_injection($request_data["id_category"]);
+        $product["id_category"] = $value;
+    } else if ($request_data["id_category"] == "NULL") {
+        $product["id_category"] = "NULL";
+    } else {
+        $product = put_check("id_category", $product, $request_data);
+    }
     $product = put_check("name", $product, $request_data);
     $product = put_check("image", $product, $request_data);
     $product = put_check("description", $product, $request_data);
@@ -299,7 +310,8 @@ $app->put("/Product/{id}", function (Request $request, Response $response, $args
     try {
         update_product($id, $product["sku"], $product["active"], $product["id_category"], $product["name"], $product["image"], $product["description"], $product["price"], $product["stock"]);
     } catch (Exception $pizdec) {
-        message($pizdec->getMessage(), 500);
+        echo $product["id_category"];
+        //message($pizdec->getMessage(), 500);
     }
     return $response;
 });

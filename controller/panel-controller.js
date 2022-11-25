@@ -5,6 +5,7 @@ helloWorld.innerText = "Welcome";
 helloWorld.id = "hi";
 document.body.appendChild(helloWorld);
 
+
 //Permalinks
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -15,10 +16,15 @@ function updateProduct(id, sku, active, idCategory, name, image, description, pr
     } else {
         var act = false;
     }
+    if (idCategory.value == "") {
+        var nulich = "NULL";
+    } else {
+        var nulich = idCategory.value;
+    }
     var data = {
         sku: sku.value,
         active: act,
-        id_category: idCategory.value,
+        id_category: nulich,
         name: name.value,
         image: image.value,
         description: description.value,
@@ -52,10 +58,15 @@ function createProduct(sku, active, idCategory, name, image, description, price,
     } else {
         var act = false;
     }
+    if (idCategory.value == "") {
+        var nulich = "NULL";
+    } else {
+        var nulich = idCategory.value;
+    }
     var data = {
         sku: sku.value,
         active: act,
-        id_category: idCategory.value,
+        id_category: nulich,
         name: name.value,
         image: image.value,
         description: description.value,
@@ -64,7 +75,7 @@ function createProduct(sku, active, idCategory, name, image, description, price,
     };
     request = new XMLHttpRequest();
     request.open("POST", "/levantsou-matvej/API/V1/Product");
-    request.onreadystatechange =requestCreateAndUpdate; 
+    request.onreadystatechange = requestCreateAndUpdate; 
     request.send(JSON.stringify(data));
 }
 function createCategory(active, name) {
@@ -86,14 +97,23 @@ function requestCreateAndUpdate(event) {
     if (request.readyState < 4) {
         return;
     } 
-    alert(JSON.parse(request.responseText).message);
-    if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
-        document.getElementsByClassName("table-window")[0].remove();
-        getAllCategories();
-    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
-        document.getElementsByClassName("table-window")[0].remove();
-        getAllProducts();
-    }
+    if (JSON.parse(request.responseText).message.includes("Please provide a") || JSON.parse(request.responseText).message.includes("Cannot add or update a child row")) {
+        if (JSON.parse(request.responseText).message.includes("Cannot add or update a child row")) {
+            alert(JSON.parse(request.responseText).message + "\n Maybe there is no category with this id.");
+        } else {
+            alert(JSON.parse(request.responseText).message);
+        }
+    } else {
+        if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+            document.getElementsByClassName("table-window")[0].remove();
+            getAllCategories();
+            alert(JSON.parse(request.responseText).message);
+        } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+            document.getElementsByClassName("table-window")[0].remove();
+            getAllProducts();
+            alert(JSON.parse(request.responseText).message);
+        }
+    }   
 }
 //DELETE
 function deleteProduct(id) {
@@ -172,27 +192,42 @@ function requestOne(event, id, forPermalink) {
     if (request.readyState < 4) {
         return;
     } 
-    if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
-        if (forPermalink == 0) {
-            getResult = JSON.parse(request.responseText).message;
-            createOrUpdateTableElement(0, 1, id);
-            if (getResult == "No category found") {
-                alert(getResult);
+    if (JSON.parse(request.responseText).message == "Unauthorised") {
+        alert(JSON.parse(request.responseText).message);
+        document.body.appendChild(helloWorld);
+    } else {
+        if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Category")) {
+            if (forPermalink == 0) {
+                getResult = JSON.parse(request.responseText).message;
+                createOrUpdateTableElement(0, 1, id);
+                if (getResult == "No category found") {
+                    alert(getResult);
+                }
+            } else {
+                getResult = JSON.parse(request.responseText).message;
+                if (getResult == "No category found") {
+                    alert(getResult);
+                    document.body.appendChild(helloWorld);
+                } else {
+                    createList();
+                }
+            }      
+        } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
+            if (forPermalink == 0) {
+                getResult = JSON.parse(request.responseText).message;
+                createOrUpdateTableElement(1, 1, id);
+                if (getResult == "No product found") {
+                    alert(getResult);
+                }
+            } else {
+                getResult = JSON.parse(request.responseText).message;
+                if (getResult == "No product found") {
+                    alert(getResult);
+                    document.body.appendChild(helloWorld);
+                } else {
+                    createList(1);
+                }     
             }
-        } else {
-            getResult = JSON.parse(request.responseText).message;
-            createList();
-        }      
-    } else if (event.currentTarget.responseURL.includes("/levantsou-matvej/API/V1/Product")) {
-        if (forPermalink == 0) {
-            getResult = JSON.parse(request.responseText).message;
-            createOrUpdateTableElement(1, 1, id);
-            if (getResult == "No product found") {
-                alert(getResult);
-            }
-        } else {
-            getResult = JSON.parse(request.responseText).message;
-            createList(1);
         }
     }
 }
@@ -616,7 +651,7 @@ function logoutOut() {
 //Login 
 var login = document.getElementById("login");
 login.style.cursor = 'pointer';
-if (document.cookie.indexOf('token=')){
+if (document.cookie.indexOf('token=')) {
     login.onclick = function() {
         loginIn();
     };
