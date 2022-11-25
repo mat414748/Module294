@@ -10,7 +10,7 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 //Login function
-function loginIn() {
+function loginLabelCreate() {
     if (document.getElementById("hi")) {
         document.body.removeChild(helloWorld);
     }
@@ -42,14 +42,14 @@ function loginIn() {
     }
 }
 //Logout function
-function logoutOut() {
+function logout() {
     login.innerText = "Logout";
     login.onclick = function() {
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         login.innerText = "Login";
         alert("Successfully logout");
         login.onclick = function() {
-            loginIn();
+            loginLabelCreate();
         };
     }
 } 
@@ -59,10 +59,10 @@ var login = document.getElementById("login");
 login.style.cursor = 'pointer';
 if (document.cookie.indexOf('token=')) {
     login.onclick = function() {
-        loginIn();
+        loginLabelCreate();
     };
 } else {
-    logoutOut();
+    logout();
 }
 
 

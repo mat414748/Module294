@@ -8,6 +8,8 @@ function createList(tableType = 0) {
     mainWindow.className = "table-window";
     namePanel.id = "name-panel";
     tableName.className = "window-name";
+
+    //TableType means what kind of table (1 products or 0 categories)
     if (tableType == 0) {
         tableName.id = "category-name";
     } else {
@@ -15,7 +17,6 @@ function createList(tableType = 0) {
     }    
     createButton.className = "create-element";
     createButton.id = "pre-create-element";
-
     createButton.innerText = "Create";
     if (tableType == 0) {
         tableName.innerText = "Categories list";
@@ -31,7 +32,7 @@ function createList(tableType = 0) {
     var tableLine = document.createElement("tr");
 
     table.id = "main-table";
-
+    //Start of the first line creation
     if (tableType == 0) {
         var tableCell = document.createElement("td");
         tableCell.id = "toc";
@@ -87,12 +88,15 @@ function createList(tableType = 0) {
 
     var tableCell = document.createElement("td");
     tableLine.appendChild(tableCell);
-
     table.appendChild(tableLine);
+    //End of creation of the first line
+    
+    //Filling tables with elements from the database
     if (Array.isArray(getResult) || typeof getResult === 'object') {
         if (Array.isArray(getResult)) {
             var length = getResult.length;
         } else {
+            //Only one time fill 
             var length = 1;
         }
         for (let i = 0; i < length; i++) {
@@ -201,8 +205,6 @@ function createList(tableType = 0) {
             tableCell.appendChild(drop);
             tableCell.appendChild(update);
             tableLine.appendChild(tableCell);
-
-
             table.appendChild(tableLine);
         }   
     }
@@ -224,6 +226,7 @@ function createOrUpdateTableElement(tableType, action = 0, elementId = 0) {
     var table = document.createElement("table");
     mainWindow.className = "table-window";
     
+    //TableType means what kind of table (1 products or 0 categories)
     if (tableType == 1) {
         var sku = createLine("SKU:", table);
     }
@@ -241,6 +244,7 @@ function createOrUpdateTableElement(tableType, action = 0, elementId = 0) {
 
     mainWindow.appendChild(table);
 
+    //Action - which button should appear in the item creation = 0 / update window = 1
     if (action == 0) {
         var create = document.createElement("button");
         create.className = "create-element";

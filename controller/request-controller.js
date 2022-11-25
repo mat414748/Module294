@@ -251,7 +251,7 @@ function requestAuthentication() {
             document.getElementById("log-win").remove();
         }
         document.body.appendChild(helloWorld);
-        logoutOut();
+        logout();
     }
     alert(answer[0]);  
 }
